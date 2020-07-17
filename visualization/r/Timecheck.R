@@ -4,7 +4,7 @@ library(ggplot2)
 source("multiplot.r")
 
 build_times <- read_csv(
-  "~/.timecheck/results",
+  "~/.timecheck/results.csv",
 #  "/Users/paultaykalo/Projects/stats/stats.csv",
   col_names = c(
     "Project",
@@ -27,7 +27,7 @@ build_times <- transform(
   EventStartWeekDay = weekdays(as.Date(anytime(
     build_times$EventStart
   )))
-  
+
 )
 
 #Filter out unneded events
@@ -47,16 +47,16 @@ aggregated_times <- function(times, aggregation_function) {
 
 
 event_graph <- function(datasource, yaxis) {
-  ggplot(datasource, aes(x = Date, y = x, fill = datasource$Event)) + 
-    geom_bar(stat = "identity") + 
+  ggplot(datasource, aes(x = Date, y = x, fill = datasource$Event)) +
+    geom_bar(stat = "identity") +
     ylab(c(yaxis)) +
     labs(fill = "")
 }
 
 
 workspace_graph <- function(datasource, yaxis) {
-  ggplot(datasource, aes(x = Date, y = x, fill = datasource$Workspace)) + 
-    geom_bar(stat = "identity") + 
+  ggplot(datasource, aes(x = Date, y = x, fill = datasource$Workspace)) +
+    geom_bar(stat = "identity") +
     ylab(c(yaxis)) +
     labs(fill = "")
 }
