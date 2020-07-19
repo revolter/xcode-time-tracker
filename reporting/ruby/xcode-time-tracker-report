@@ -1,0 +1,245 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'csv'
+require 'date'
+require 'json'
+
+HEADERS = {
+    ProjectName: 0,
+    WorkspaceName: 1,
+    TimeStart: 2,
+    TimeEnd: 3,
+    EventName: 4,
+    TimeSpent: 5
+}
+
+class Seconds
+    attr_reader :value
+
+    def initialize(value = 0)
+        @value = value
+    end
+
+    def +(other)
+        return Seconds.new(@value + other.value)
+    end
+
+    def /(other)
+        return Seconds.new(@value / other)
+    end
+
+    def <=>(other)
+        return @value <=> other.value
+    end
+
+    def to_h
+        return Seconds.formatted(@value)
+    end
+
+    private
+
+    def self.formatted(seconds)
+        dhms = [60, 60, 24].reduce([seconds]) { |m, o| m.unshift(m.shift.divmod(o)).flatten }
+
+        days = dhms[0]
+
+        return "%d day#{'s' if days > 1} %02d:%02d:%02d" % dhms unless days.zero?
+        return '%02d:%02d:%02d' % dhms[1..3] unless dhms[1].zero?
+        return '00:%02d:%02d' % dhms[2..3] unless dhms[2].zero?
+        return '00:00:%02d' % dhms[3]
+    end
+end
+
+class Duration
+    @sum
+
+    @total
+    @average
+    @maximum
+
+    def initialize
+        @sum = 0
+
+        @total = Seconds.new()
+        @average = Seconds.new()
+        @maximum = Seconds.new()
+    end
+
+    def append(time)
+        seconds = Seconds.new(time)
+
+        @sum += 1
+
+        @total += seconds
+        @average = @total / @sum
+        @maximum = [@maximum, seconds].max
+    end
+
+    def empty?()
+        return @total.value == 0
+    end
+
+    def to_h
+        if self.empty?()
+            return nil
+        end
+
+        return {
+            'total': @total.to_h,
+            'average': @average.to_h,
+            'maximum': @maximum.to_h
+        }
+    end
+end
+
+class Report
+    attr_reader :name
+
+    attr_reader :today
+    attr_reader :this_week
+    attr_reader :all_time
+
+    def initialize(name)
+        @name = name
+
+        @today = Duration.new()
+        @this_week = Duration.new()
+        @all_time = Duration.new()
+    end
+
+    def to_h
+        return {
+            'name': @name,
+            'today': @today.to_h,
+            'this week': @this_week.to_h,
+            'all time': @all_time.to_h
+        }
+    end
+end
+
+class Reports
+    @projects
+    @workspaces
+
+    def initialize
+        @projects = []
+        @workspaces = []
+    end
+
+    def get_project_report(name)
+        return @projects.find { |report| report.name == name }
+    end
+
+    def get_workspace_report(name)
+        return @workspaces.find { |report| report.name == name }
+    end
+
+    def add_project_report(report)
+        @projects << report
+    end
+
+    def add_workspace_report(report)
+        @workspaces << report
+    end
+
+    def to_h
+        return {
+            'projects': @projects.map(&:to_h),
+            'workspaces': @workspaces.map(&:to_h)
+        }
+    end
+end
+
+reports = Reports.new()
+
+converter = lambda { |value, field_info|
+    column_index = field_info.index
+    header_name = HEADERS.invert[column_index]
+
+    case header_name
+    when :ProjectName, :WorkspaceName
+        string = value.to_s
+
+        return string.start_with?('No ') ? nil : string
+    when :EventName
+        return value.to_s
+    when :TimeStart, :TimeEnd
+        return DateTime.strptime(value, '%s')
+    when :TimeSpent
+        return value.to_i
+    end
+}
+
+file = File.read(File.expand_path('~/.timecheck/results.csv'))
+results = CSV.parse(file, converters: [converter])
+
+results.each do |result|
+    project_name = result[HEADERS[:ProjectName]]
+    workspace_name = result[HEADERS[:WorkspaceName]]
+    time_start = result[HEADERS[:TimeStart]]
+    event_name = result[HEADERS[:EventName]]
+    time_spent = result[HEADERS[:TimeSpent]]
+
+    unless ['Build Succeeded', 'Build Failed'].include?(event_name)
+        next
+    end
+
+    is_project = !project_name.nil?
+    is_workspace = !workspace_name.nil?
+
+    current_time = Time.new()
+    start_time = time_start.to_time()
+
+    today_start = Time.new(current_time.year, current_time.month, current_time.day)
+    today_end = today_start + 24 * 60 * 60 - 1
+    is_today = (today_start..today_end).cover?(start_time)
+
+    current_datetime = DateTime.now()
+
+    week_start_raw = current_datetime - ((current_datetime.wday - 1) % 7)
+    week_start = DateTime.new(week_start_raw.year, week_start_raw.month, week_start_raw.day, 0, 0, 0, week_start_raw.zone)
+    week_end = week_start + 5 - 1.0 / (24 * 60 * 60)
+    is_current_week = (week_start..week_end).cover?(time_start)
+
+    name = nil
+    report = nil
+
+    if is_project
+        name = project_name
+        report = reports.get_project_report(name)
+    elsif is_workspace
+        name = workspace_name
+        report = reports.get_workspace_report(name)
+    else
+        puts('Missing project or workspace name')
+
+        next
+    end
+
+    is_new = report.nil?
+
+    report = Report.new(name) if is_new
+
+    if is_today
+        report.today.append(time_spent)
+    end
+
+    if is_current_week
+        report.this_week.append(time_spent)
+    end
+
+    report.all_time.append(time_spent)
+
+    if is_new
+        if is_project
+            reports.add_project_report(report)
+        elsif is_workspace
+            reports.add_workspace_report(report)
+        end
+    end
+end
+
+reports_json = JSON.pretty_generate(reports.to_h, indent: ' ' * 4)
+
+puts(reports_json)
