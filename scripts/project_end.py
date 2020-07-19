@@ -5,8 +5,8 @@ from os.path import expanduser
 
 seconds = int(round(time.time()))
 line = ""
-with open (expanduser("~/.timecheck/end_time"), 'w') as f: f.write (str(seconds))
-with open (expanduser("~/.timecheck/start_time"), 'r') as f: line = f.readline()
+with open (expanduser("~/.xcode-time-tracker/end_time"), 'w') as f: f.write (str(seconds))
+with open (expanduser("~/.xcode-time-tracker/start_time"), 'r') as f: line = f.readline()
 start_time = int(line)
 diff = seconds - start_time
 
@@ -17,7 +17,7 @@ workspace_name = os.environ.get("XcodeProject", "No project")
 
 print "It took " + str(diff) + " seconds to [" + activity + "] for " + project_name
 
-with open (expanduser("~/.timecheck/results.csv"), 'a') as f:
+with open (expanduser("~/.xcode-time-tracker/results.csv"), 'a') as f:
 	f.write(workspace_name + "," + project_name + ","+ str(start_time) + "," +  str(seconds) + "," + activity + "," + str(diff) + "\n")
 
 # Upload th results somewhere

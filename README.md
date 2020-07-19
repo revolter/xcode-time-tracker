@@ -27,7 +27,7 @@ There are two installation steps:
 1. Download the project by running this command in terminal:
 
 ```sh
-git clone https://github.com/revolter/xcode-time-tracker ~/.timecheck
+git clone https://github.com/revolter/xcode-time-tracker ~/.xcode-time-tracker
 ```
 
 2. Set up Xcode behaviors to run the scripts on every run.
@@ -38,12 +38,12 @@ git clone https://github.com/revolter/xcode-time-tracker ~/.timecheck
 
 <img alt="Behaviors" src="images/screenshot_1_edit_behaviors@2x.png" width="432" height="329">
 
-2. Set the `~/.timecheck/scripts/project_start.py` script as the `Run` phase of
+2. Set the `~/.xcode-time-tracker/scripts/project_start.py` script as the `Run` phase of
    these start behaviors:
 
 <img alt="Start behaviors" src="images/screenshot_2_start_behaviors@2x.png" width="800" height="550">
 
-3. Set the `~/.timecheck/scripts/project_end.py` script as the `Run` phrase of
+3. Set the `~/.xcode-time-tracker/scripts/project_end.py` script as the `Run` phrase of
    these end behaviors:
 
 <img alt="End behaviors" src="images/screenshot_3_end_behaviors@2x.png" width="800" height="550">
@@ -51,7 +51,7 @@ git clone https://github.com/revolter/xcode-time-tracker ~/.timecheck
 ## Check the installation
 
 Build your project and see if the `results.csv` file appeared in the
-`~/.timecheck` directory.  
+`~/.xcode-time-tracker` directory.  
 It should contain lines looking like [these](#raw-output-example).
 
 # Update
@@ -59,7 +59,7 @@ It should contain lines looking like [these](#raw-output-example).
 To update the scripts, run these commands in terminal:
 
 ```sh
-cd ~/..timecheck
+cd ~/..xcode-time-tracker
 git pull
 ```
 
@@ -80,13 +80,13 @@ There are two ways for using this:
 1. You can run it directly by using this command in terminal:
 
 ```sh
-~/.timecheck/bin/xcode-time-tracker-report
+~/.xcode-time-tracker/bin/xcode-time-tracker-report
 ```
 
 2. You can change the `PATH` environment variable by adding:
 
 ```sh
-export PATH="$HOME/.timecheck/bin:$PATH"
+export PATH="$HOME/.xcode-time-tracker/bin:$PATH"
 ```
 
 to your shell configuration file (`.bash_profile`, `.zshrc`, etc.), and then run

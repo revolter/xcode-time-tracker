@@ -4,8 +4,7 @@ library(ggplot2)
 source("multiplot.r")
 
 build_times <- read_csv(
-  "~/.timecheck/results.csv",
-#  "/Users/paultaykalo/Projects/stats/stats.csv",
+  "~/xcode-time-tracker/results.csv",
   col_names = c(
     "Project",
     "Workspace",
