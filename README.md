@@ -24,46 +24,44 @@ Where the columns are: `Project name`, `Workspace name`, `Time start`,
 # Installation
 
 There are two installation steps:
-1. Place scripts to `~/.timecheck` directory.
-2. Setup Xcode behaviours to run those scripts on every run.
+1. Download the project by running this command in terminal:
 
-## Scripts installation
-
-Simply run
-```
-CURRENT=`pwd`
-cd `mktemp -d`
-git clone https://github.com/PaulTaykalo/xcode-time-tracker
-cd xcode-time-tracker
-sh ./install.sh
-cd ..
-rm -rf xcode-time-tracker
-cd $CURRENT
+```sh
+git clone https://github.com/revolter/xcode-time-tracker ~/.timecheck
 ```
 
-This will download and copy `project_start.py` and `project_end.py` to the `~/.timecheck` directory.
+2. Set up Xcode behaviors to run the scripts on every run.
 
 ## Xcode behaviors setup
 
 1. Select the `Xcode` > `Behaviors` > `Edit Behaviors...` menu.
 
-![Behaviors](https://github.com/PaulTaykalo/xcode-time-tracker/blob/images/images/behaviours.png?raw=true)
+<img alt="Behaviors" src="images/screenshot_1_edit_behaviors@2x.png" width="432" height="329">
 
-2. Set `~/.timecheck/project_start.py` script as the `Run` phase of these start
-   behaviors:
+2. Set the `~/.timecheck/scripts/project_start.py` script as the `Run` phase of
+   these start behaviors:
 
-![Start Behaviors](https://github.com/PaulTaykalo/xcode-time-tracker/blob/images/images/start_script.png?raw=true)
+<img alt="Start behaviors" src="images/screenshot_2_start_behaviors@2x.png" width="800" height="550">
 
-3. Set `~/.timecheck/project_end.py` script as the `Run` phase of these end
-   behaviors:
+3. Set the `~/.timecheck/scripts/project_end.py` script as the `Run` phrase of
+   these end behaviors:
 
-![End Behaviors](https://github.com/PaulTaykalo/xcode-time-tracker/blob/images/images/end_script.png?raw=true)
+<img alt="End behaviors" src="images/screenshot_3_end_behaviors@2x.png" width="800" height="550">
 
 ## Check the installation
 
 Build your project and see if the `results.csv` file appeared in the
 `~/.timecheck` directory.  
 It should contain lines looking like [these](#raw-output-example).
+
+# Update
+
+To update the scripts, run these commands in terminal:
+
+```sh
+cd ~/..timecheck
+git pull
+```
 
 # Visualization
 
@@ -72,4 +70,4 @@ I used the [R](https://www.r-project.org/about.html) language for that, But
 there's more coming.  
 This how it can look like if you'll be able to set up R correctly:
 
-![Visualization](https://github.com/PaulTaykalo/xcode-time-tracker/blob/images/images/stats_visualized.png?raw=true)
+<img alt="R visualization" src="images/screenshot_4_r_visualization@2x.png" width="564" height="351">
