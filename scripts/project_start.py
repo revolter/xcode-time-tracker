@@ -4,4 +4,4 @@ import sys,time,os
 from os.path import expanduser
 
 seconds = int(round(time.time()))
-with open (expanduser("~/.timecheck/start_time"), 'w') as f: f.write (str(seconds))
+with open (expanduser("~/.xcode-time-tracker/start_time"), 'w') as f: f.write (str(seconds))

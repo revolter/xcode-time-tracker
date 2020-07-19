@@ -171,7 +171,7 @@ converter = lambda { |value, field_info|
     end
 }
 
-file = File.read(File.expand_path('~/.timecheck/results.csv'))
+file = File.read(File.expand_path('~/.xcode-time-tracker/results.csv'))
 results = CSV.parse(file, converters: [converter])
 
 results.each do |result|
