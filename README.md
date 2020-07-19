@@ -1,60 +1,73 @@
 # Xcode Time Tracker
-This is the tool that allows to track events that are happening in Xcode
-This tool simply runs tracking scripts based on Xcode behaviors.
-It's independent on the Xcode version (as soon as you have Xcode version higher than 4 :)
-It will survive Xcode reinstallations, so it works on 'install and forget basis'
+
+This is a tool that allows you to track the time of events that are happening in
+Xcode.  
+This tool simply runs tracking scripts based on Xcode behaviors.  
+It's independent of the Xcode version (as long as you're using Xcode version 4
+or greater).  
+It will survive Xcode reinstallations, so it works on _"install and forget
+basis"_.
 
 # Raw output example
-The result of this tool will be one simple csv file looking like this
-```
-#ProjectName, Workspace, TimeStart, TimeEnd, Event, TimeSpent
+
+The result of this tool will be one simple CSV file looking like this:
+
+```csv
 No project,TimeTracker.xcworkspace,1497876725,1497876729,Build Succeeded,4
 No project,TimeTracker.xcworkspace,1497876729,1497877067,Run Completed,338
-No project,TimeTracker.xcworkspace,1497877067,1497877088,Build Succeeded,21
+TimeTracker.xcodeproj,No workspace,1497877067,1497877088,Build Succeeded,21
 ```
+
+Where the columns are: `Project name`, `Workspace name`, `Time start`,
+`Time end`, `Event name` and `Time spent`.
 
 # Installation
-There'are two installation steps: 
-1) Place scripts to `~/.timecheck` directory
-2) Setup Xcode behaviours to run those scripts on every run
 
-## Scripts installation
-Simply run 
+There are two installation steps:
+1. Download the project by running this command in terminal:
+
+```sh
+git clone https://github.com/revolter/xcode-time-tracker ~/.timecheck
 ```
-CURRENT=`pwd`
-cd `mktemp -d`
-git clone https://github.com/PaulTaykalo/xcode-time-tracker
-cd xcode-time-tracker
-sh ./install.sh
-cd ..
-rm -rf xcode-time-tracker
-cd $CURRENT
-```
-This will download and copy `project_start.py` and `project_end.py` to the `~/.timecheck` directory
 
-## Xcode Behaviours setup
+2. Set up Xcode behaviors to run the scripts on every run.
 
-1) Edit Xcode Behaviors  
-![Behaviors](https://github.com/PaulTaykalo/xcode-time-tracker/blob/images/images/behaviours.png?raw=true)
-2) Set project_start.py script as custom script for start behaviors  
-![Start Behaviors](https://github.com/PaulTaykalo/xcode-time-tracker/blob/images/images/start_script.png?raw=true)
-3) Set project_end.py script as custom script for end behaviors  
-![End Behaviors](https://github.com/PaulTaykalo/xcode-time-tracker/blob/images/images/end_script.png?raw=true)
+## Xcode behaviors setup
 
+1. Select the `Xcode` > `Behaviors` > `Edit Behaviors...` menu.
 
-## Next step
-There are no more steps. Done.
+<img alt="Behaviors" src="images/screenshot_1_edit_behaviors@2x.png" width="432" height="329">
 
-## Check Installation
-Build your precious project and see that there's new file appeared in `~/.timecheck` directory
-It should contain line that should look like this
-```
-No project,HeyYouAreAwesome.xcworkspace,1597876725,1597876729,Build Succeeded,4
+2. Set the `~/.timecheck/scripts/project_start.py` script as the `Run` phase of
+   these start behaviors:
+
+<img alt="Start behaviors" src="images/screenshot_2_start_behaviors@2x.png" width="800" height="550">
+
+3. Set the `~/.timecheck/scripts/project_end.py` script as the `Run` phrase of
+   these end behaviors:
+
+<img alt="End behaviors" src="images/screenshot_3_end_behaviors@2x.png" width="800" height="550">
+
+## Check the installation
+
+Build your project and see if the `results.csv` file appeared in the
+`~/.timecheck` directory.  
+It should contain lines looking like [these](#raw-output-example).
+
+# Update
+
+To update the scripts, run these commands in terminal:
+
+```sh
+cd ~/..timecheck
+git pull
 ```
 
 # Visualization
-The next step is to visualize this information.
-I used [R](https://www.r-project.org/about.html) language for that. But there's more coming
-This how it can look like if you'll be able to setup R correcly :)
-![Visualization](https://github.com/PaulTaykalo/xcode-time-tracker/blob/images/images/stats_visualized.png?raw=true)
 
+The next step is to visualize this information.  
+I used the [R](https://www.r-project.org/about.html) language for that, But
+there's more coming.  
+This how it can look like if you'll be able to set up R correctly:
+
+<img alt="R visualization" src="images/screenshot_4_r_visualization@2x.png" width="564" height="351">
