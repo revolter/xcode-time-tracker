@@ -59,7 +59,7 @@ It should contain lines looking like [these](#raw-output-example).
 To update the scripts, run these commands in terminal:
 
 ```sh
-cd ~/..xcode-time-tracker
+cd ~/.xcode-time-tracker
 git pull
 ```
 
