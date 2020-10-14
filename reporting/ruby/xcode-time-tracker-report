@@ -5,10 +5,21 @@ require 'csv'
 require 'date'
 require 'json'
 
+ARGUMENT_REGEX = Regexp.new('(?<=--)([^=]+)=(.+)')
+
 module ARGUMENTS
     Project = 'project'
     Workspace = 'workspace'
+
+    OutputType = 'output-type'
 end
+
+module OUTPUT_TYPES
+    Summary = 'summary'
+    LastFive = 'last-5'
+end
+
+$output_type = OUTPUT_TYPES::Summary
 
 HEADERS = {
     ProjectName: 0,
@@ -59,7 +70,7 @@ end
 class Duration
     @sum
 
-    @total
+    attr_reader :total
     @average
     @maximum
 
@@ -98,8 +109,8 @@ class Duration
     end
 end
 
-class Report
-    attr_reader :name
+class SummaryReport
+    @name
 
     attr_reader :today
     attr_reader :this_week
@@ -120,6 +131,66 @@ class Report
             'this week': @this_week.to_h,
             'all time': @all_time.to_h
         }
+    end
+end
+
+class ListReport
+    @name
+
+    @times
+
+    def initialize(name, times = Hash.new())
+        @name = name
+
+        @times = times
+    end
+
+    def append(date, time)
+        duration = Duration.new()
+        duration.append(time)
+
+        @times[date] = duration
+    end
+
+    def last(count)
+        last_count_times = @times.map { |date| date }.last(count).to_h
+
+        return ListReport.new(@name, last_count_times)
+    end
+
+    def to_h
+        return {
+            'name': @name,
+            'times': @times.map { |date, duration| {
+                'date': date,
+                'duration': duration.total.to_h
+            } }
+        }
+    end
+end
+
+class Report
+    attr_reader :name
+
+    attr_reader :summary
+    attr_reader :list
+
+    def initialize(name)
+        @name = name
+
+        @summary = SummaryReport.new(@name)
+        @list = ListReport.new(@name)
+    end
+
+    def to_h
+        case $output_type
+        when OUTPUT_TYPES::Summary
+            return @summary.to_h
+        when OUTPUT_TYPES::LastFive
+            return @list.last(5).to_h
+        else
+            return nil
+        end
     end
 end
 
@@ -153,6 +224,32 @@ class Reports
             'projects': @projects.map(&:to_h),
             'workspaces': @workspaces.map(&:to_h)
         }
+    end
+end
+
+for argument in ARGV
+    match_data = argument.match(ARGUMENT_REGEX)
+
+    next unless match_data
+
+    key, value = match_data.captures
+
+    case key
+    when ARGUMENTS::OutputType
+        case value
+        when OUTPUT_TYPES::Summary
+            $output_type = OUTPUT_TYPES::Summary
+
+            break
+        when OUTPUT_TYPES::LastFive
+            $output_type = OUTPUT_TYPES::LastFive
+
+            break
+        else
+            next
+        end
+    else
+        next
     end
 end
 
@@ -227,14 +324,16 @@ results.each do |result|
     report = Report.new(name) if is_new
 
     if is_today
-        report.today.append(time_spent)
+        report.summary.today.append(time_spent)
     end
 
     if is_current_week
-        report.this_week.append(time_spent)
+        report.summary.this_week.append(time_spent)
     end
 
-    report.all_time.append(time_spent)
+    report.summary.all_time.append(time_spent)
+
+    report.list.append(start_time, time_spent)
 
     if is_new
         if is_project
@@ -248,7 +347,7 @@ end
 result = reports
 
 for argument in ARGV
-    match_data = argument.match(/(?<=--)([^=]+)=(.+)/)
+    match_data = argument.match(ARGUMENT_REGEX)
 
     next unless match_data
 
@@ -256,7 +355,7 @@ for argument in ARGV
     filtered_result = nil
 
     case key
-    when ARGUMENTS::Project,
+    when ARGUMENTS::Project
         filtered_result = reports.get_project_report(value)
 
         unless filtered_result
