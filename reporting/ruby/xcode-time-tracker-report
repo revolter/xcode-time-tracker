@@ -274,6 +274,8 @@ for argument in ARGV
 
     if filtered_result
         result = filtered_result
+
+        break
     else
         puts("Could not find #{key} `#{value}`")
 
