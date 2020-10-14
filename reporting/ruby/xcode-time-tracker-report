@@ -5,6 +5,11 @@ require 'csv'
 require 'date'
 require 'json'
 
+module ARGUMENTS
+    Project = 'project'
+    Workspace = 'workspace'
+end
+
 HEADERS = {
     ProjectName: 0,
     WorkspaceName: 1,
@@ -240,6 +245,42 @@ results.each do |result|
     end
 end
 
-reports_json = JSON.pretty_generate(reports.to_h, indent: ' ' * 4)
+result = reports
+
+for argument in ARGV
+    match_data = argument.match(/(?<=--)([^=]+)=(.+)/)
+
+    next unless match_data
+
+    key, value = match_data.captures
+    filtered_result = nil
+
+    case key
+    when ARGUMENTS::Project,
+        filtered_result = reports.get_project_report(value)
+
+        unless filtered_result
+            filtered_result = reports.get_project_report("#{value}.xcodeproj")
+        end
+    when ARGUMENTS::Workspace
+        filtered_result = reports.get_workspace_report(value)
+
+        unless filtered_result
+            filtered_result = reports.get_workspace_report("#{value}.xcworkspace")
+        end
+    else
+        next
+    end
+
+    if filtered_result
+        result = filtered_result
+    else
+        puts("Could not find #{key} `#{value}`")
+
+        return
+    end
+end
+
+reports_json = JSON.pretty_generate(result.to_h, indent: ' ' * 4)
 
 puts(reports_json)

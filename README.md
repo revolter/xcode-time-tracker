@@ -146,3 +146,21 @@ separated by projects and workspaces, which looks like this:
     ]
 }
 ```
+
+You can also filter by a specific project or workspace using the `--project` or
+`--workspace` arguments.
+
+If it uses the default extension, which is `.xcodeproj` for projects and
+`.xcworkspace` for workspaces, you can simply run one of these commands:
+
+```sh
+xcode-time-tracker-report --project=MyProject
+xcode-time-tracker-report --workspace=MyWorkspace
+```
+
+If it uses a custom extension, you need to specify it like this:
+
+```sh
+xcode-time-tracker-report --project=MyProject.myprojectextension
+xcode-time-tracker-report --workspace=MyWorkspace.myworkspaceextension
+```
