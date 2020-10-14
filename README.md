@@ -59,14 +59,14 @@ It should contain lines looking like [these](#raw-output-example).
 To update the scripts, run these commands in terminal:
 
 ```sh
-cd ~/..xcode-time-tracker
+cd ~/.xcode-time-tracker
 git pull
 ```
 
 # Visualization
 
 The next step is to visualize this information.  
-I used the [R](https://www.r-project.org/about.html) language for that, but
+I used the [R language](https://www.r-project.org/about.html) for that, but
 there's more coming.  
 This how it can look like if you'll be able to set up R correctly:
 
@@ -74,8 +74,11 @@ This how it can look like if you'll be able to set up R correctly:
 
 # Reporting
 
-You can also get a report for this information.  
-I used the [Ruby](https://www.ruby-lang.org/en/about/) language for that.  
+## Usage
+
+You can also get a report for this information using the
+[Ruby language](https://www.ruby-lang.org/en/about/).
+
 There are two ways for using this:
 1. You can run it directly by using this command in terminal:
 
@@ -98,9 +101,63 @@ xcode-time-tracker-report
 
 in terminal.
 
-It will print a JSON report containing the **total**, **average** and
-**maximum** times spent building **today**, **this week** and **all time**,
-separated by projects and workspaces, which looks like this:
+## Filter
+
+You can filter by a specific project or workspace using the `--project` and
+`--workspace` arguments.
+
+If it uses the default extension, which is `.xcodeproj` for projects and
+`.xcworkspace` for workspaces, you can simply run one of these commands:
+
+```sh
+xcode-time-tracker-report --project=MyProject
+xcode-time-tracker-report --workspace=MyWorkspace
+```
+
+If it uses a custom extension, you need to specify it like this:
+
+```sh
+xcode-time-tracker-report --project=MyProject.myprojectextension
+xcode-time-tracker-report --workspace=MyWorkspace.myworkspaceextension
+```
+
+The output looks like this:
+
+```json
+{
+    "name": "TimeTracker.xcworkspace",
+    "today": {
+        "total": "00:34:15",
+        "average": "00:01:02",
+        "maximum": "00:07:49"
+    },
+    "this week": {
+        "total": "04:57:35",
+        "average": "00:01:20",
+        "maximum": "00:09:38"
+    },
+    "all time": {
+        "total": "1 day 16:38:16",
+        "average": "00:01:09",
+        "maximum": "00:14:42"
+    }
+}
+```
+
+## Output type
+
+### Summary
+
+The summary is returned by default if you don't specify the `--output-type`
+argument. If you want, you can also explicitly specify it like this:
+
+```sh
+xcode-time-tracker-report --output-type=summary
+```
+
+It contains the **total**, **average** and **maximum** times spent building
+**today**, **this week** and **all time**, separated by projects and workspaces,
+which looks like this:
 
 ```json
 {
@@ -147,20 +204,47 @@ separated by projects and workspaces, which looks like this:
 }
 ```
 
-You can also filter by a specific project or workspace using the `--project` or
-`--workspace` arguments.
+### Last 5 entries
 
-If it uses the default extension, which is `.xcodeproj` for projects and
-`.xcworkspace` for workspaces, you can simply run one of these commands:
+The last 5 entries are returned by running:
 
 ```sh
-xcode-time-tracker-report --project=MyProject
-xcode-time-tracker-report --workspace=MyWorkspace
+xcode-time-tracker --output-type=last-5
 ```
 
-If it uses a custom extension, you need to specify it like this:
+It contains a list of 5 objects with the formatted **date** and **duration**,
+which looks like this:
 
-```sh
-xcode-time-tracker-report --project=MyProject.myprojectextension
-xcode-time-tracker-report --workspace=MyWorkspace.myworkspaceextension
+```json
+{
+    "workspaces": [
+        {
+            "name": "TimeTracker.xcworkspace",
+            "times": [
+                {
+                    "date": "2020-10-14 13:13:20 +0000",
+                    "duration": "00:00:51"
+                },
+                {
+                    "date": "2020-10-14 15:25:33 +0000",
+                    "duration": "00:02:11"
+                },
+                {
+                    "date": "2020-10-14 15:28:32 +0000",
+                    "duration": "00:00:28"
+                },
+                {
+                    "date": "2020-10-14 17:11:29 +0000",
+                    "duration": "00:00:38"
+                },
+                {
+                    "date": "2020-10-14 17:12:31 +0000",
+                    "duration": "00:00:36"
+                }
+            ]
+        }
+    ]
+}
 ```
+
+**Note**: It can also be combined with the filtering option.
