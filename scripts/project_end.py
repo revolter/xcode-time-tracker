@@ -1,5 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+
 # Simly calling pyton to finish the task
+
 import sys,time,os
 from os.path import expanduser
 

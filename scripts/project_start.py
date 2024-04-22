@@ -1,5 +1,7 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+
 # Simple as a hell - writing current seconds to the file
+
 import sys,time,os
 from os.path import expanduser
 
